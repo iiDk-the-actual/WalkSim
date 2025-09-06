@@ -13,6 +13,8 @@ namespace WalkSim.WalkSim.Animators
 
         private float height = 0.2f;
 
+        private float heightModifier = 0f;
+
         private float jumpTime;
 
         private bool onJumpCooldown;
@@ -53,7 +55,14 @@ namespace WalkSim.WalkSim.Animators
         {
             Rig.active = Rig.onGround && !hasJumped;
             Rig.useGravity = !Rig.onGround;
+            
+            if (Keyboard.current.altKey.isPressed)
+                heightModifier += Mouse.current.scroll.ReadValue().y / 50f;
+            
+            heightModifier = Mathf.Clamp(heightModifier, 0f, 1f);
+            
             if (!Rig.onGround) return;
+            
             float num;
             float num2;
             float num3;
@@ -77,8 +86,12 @@ namespace WalkSim.WalkSim.Animators
                 num2 -= 0.3f;
             }
 
+            num += heightModifier;
+            num2 += heightModifier;
+
             targetHeight = Extensions.Map(Mathf.Sin(num3), -1f, 1f, num, num2);
             height = targetHeight;
+            
             var vector = Rig.lastGroundPosition + Vector3.up * (height * GTPlayer.Instance.NativeScale);
             var vector2 = Body.TransformDirection(InputHandler.inputDirectionNoY);
             vector2.y = 0f;
